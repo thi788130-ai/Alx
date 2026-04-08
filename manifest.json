@@ -1,0 +1,9 @@
+{
+  "name": "Auxílio de Mira PRO",
+  "short_name": "Mira PRO",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#0a001a",
+  "theme_color": "#6a00ff",
+  "orientation": "portrait"
+}

@@ -1,0 +1,281 @@
+```html
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Auxílio de Mira</title>
+
+<style>
+body{
+    margin:0;
+    background:#0a001a;
+    font-family:Arial;
+    color:white;
+}
+
+/* Loading */
+#loading{
+    position:fixed;
+    width:100%;
+    height:100%;
+    background:#0a001a;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    color:#6a00ff;
+    font-size:24px;
+}
+
+/* Login */
+#login{
+    display:none;
+    text-align:center;
+    margin-top:100px;
+}
+
+/* App */
+#app{
+    display:none;
+}
+
+/* Botão flutuante */
+.floating-btn{
+    position:fixed;
+    bottom:20px;
+    right:20px;
+    background:#6a00ff;
+    width:65px;
+    height:65px;
+    border-radius:50%;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-size:26px;
+    box-shadow:0 0 25px #6a00ff;
+}
+
+/* Painel */
+.panel{
+    position:fixed;
+    bottom:100px;
+    right:20px;
+    background:#12002b;
+    padding:15px;
+    border-radius:15px;
+    display:none;
+    width:220px;
+}
+
+/* Botões */
+.btn{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    margin:10px 0;
+    padding:10px;
+    border-radius:10px;
+    background:#1e004d;
+}
+
+/* Toggle */
+.toggle{
+    width:40px;
+    height:20px;
+    background:#333;
+    border-radius:20px;
+    position:relative;
+}
+
+.toggle::after{
+    content:"";
+    width:18px;
+    height:18px;
+    background:white;
+    position:absolute;
+    top:1px;
+    left:1px;
+    border-radius:50%;
+    transition:0.3s;
+}
+
+.active{
+    background:#6a00ff;
+}
+
+.active::after{
+    left:21px;
+}
+
+/* Mira */
+.crosshair{
+    position:fixed;
+    top:50%;
+    left:50%;
+    transform:translate(-50%, -50%);
+    pointer-events:none;
+}
+</style>
+</head>
+
+<body>
+
+<div id="loading">⚡ Carregando...</div>
+
+<div id="login">
+<h2>Auxílio de Mira PRO</h2>
+<input id="user" placeholder="Usuário"><br><br>
+<input id="pass" type="password" placeholder="Senha"><br><br>
+<button onclick="login()">Entrar</button>
+</div>
+
+<div id="app">
+
+<div class="crosshair" id="crosshair"></div>
+
+<div class="panel" id="panel">
+
+<div class="btn">Mira <div class="toggle" onclick="toggle(this,'mira')"></div></div>
+<div class="btn">2X <div class="toggle" onclick="toggle(this,'2x')"></div></div>
+<div class="btn">4X <div class="toggle" onclick="toggle(this,'4x')"></div></div>
+<div class="btn">Red Dot <div class="toggle" onclick="toggle(this,'red')"></div></div>
+
+<hr>
+
+🎨 Cor
+<input type="color" id="colorPicker">
+
+📏 Tamanho
+<input type="range" min="10" max="60" id="sizeSlider">
+
+<hr>
+
+<h3>💎 Premium</h3>
+<button onclick="comprar()">Comprar</button>
+
+<div id="premiumArea" style="display:none;">
+🔥 PRO liberado
+<button onclick="miraPremium()">Ativar PRO+</button>
+</div>
+
+</div>
+
+<div class="floating-btn" onclick="abrir()">⚙️</div>
+
+</div>
+
+<script>
+let aberto=false;
+
+function abrir(){
+    aberto=!aberto;
+    document.getElementById("panel").style.display = aberto ? "block" : "none";
+}
+
+function login(){
+    let user = document.getElementById("user").value;
+    let pass = document.getElementById("pass").value;
+
+    if(user && pass){
+        localStorage.user = user;
+
+        document.getElementById("login").style.display = "none";
+        document.getElementById("app").style.display = "block";
+    } else {
+        alert("Preencha usuário e senha");
+    }
+}
+
+// MIRA
+function criarMira(){
+    const crosshair = document.getElementById("crosshair");
+    crosshair.innerHTML=`
+    <div style="width:2px;height:30px;background:${localStorage.cor};position:absolute;left:50%;transform:translateX(-50%)"></div>
+    <div style="height:2px;width:30px;background:${localStorage.cor};position:absolute;top:50%;transform:translateY(-50%)"></div>
+    `;
+}
+
+function toggle(el,tipo){
+    const crosshair = document.getElementById("crosshair");
+    el.classList.toggle("active");
+
+    if(tipo==="red"){
+        crosshair.innerHTML=`<div style="width:10px;height:10px;background:${localStorage.cor};border-radius:50%;"></div>`;
+    }
+
+    if(tipo==="2x"){
+        crosshair.style.transform="translate(-50%,-50%) scale(1.3)";
+    }
+
+    if(tipo==="4x"){
+        crosshair.style.transform="translate(-50%,-50%) scale(1.6)";
+    }
+
+    if(tipo==="mira"){
+        criarMira();
+        crosshair.style.transform="translate(-50%,-50%) scale(1)";
+    }
+}
+
+// COR
+document.getElementById("colorPicker").oninput=(e)=>{
+    localStorage.cor=e.target.value;
+    criarMira();
+}
+
+// TAMANHO
+document.getElementById("sizeSlider").oninput=(e)=>{
+    let size=e.target.value;
+    localStorage.size=size;
+    document.getElementById("crosshair").style.scale=size/30;
+}
+
+// PREMIUM
+function checkPremium(){
+    if(localStorage.premium==="true"){
+        document.getElementById("premiumArea").style.display="block";
+    }
+}
+
+function comprar(){
+    alert("Pix: 47988535735\nValor: R$5");
+    localStorage.premium="true";
+    checkPremium();
+}
+
+function miraPremium(){
+    document.getElementById("crosshair").innerHTML=`
+    <div style="width:40px;height:40px;border:2px solid gold;border-radius:50%;"></div>
+    <div style="width:6px;height:6px;background:gold;border-radius:50%;position:absolute;top:50%;left:50%;transform:translate(-50%,-50%)"></div>
+    `;
+}
+
+// LOAD
+window.onload=()=>{
+    localStorage.cor=localStorage.cor||"#ff0000";
+    localStorage.size=localStorage.size||30;
+
+    document.getElementById("colorPicker").value=localStorage.cor;
+    document.getElementById("sizeSlider").value=localStorage.size;
+
+    criarMira();
+    document.getElementById("crosshair").style.scale=localStorage.size/30;
+
+    checkPremium();
+
+    setTimeout(()=>{
+        document.getElementById("loading").style.display="none";
+
+        if(localStorage.user){
+            document.getElementById("app").style.display="block";
+        }else{
+            document.getElementById("login").style.display="block";
+        }
+    },1500);
+}
+</script>
+
+</body>
+</html>
+```
